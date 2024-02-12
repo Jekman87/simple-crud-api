@@ -41,22 +41,24 @@ export const createUser = (req: IncomingMessage, res: ServerResponse) =>
       data += chunk.toString();
     });
 
-    req.on('end', () => {
-      const userData = JSON.parse(data);
-      const isValidUserInput = validateUserInput(userData);
+    req.on('end', () =>
+      handleServerError(req, res, () => {
+        const userData = JSON.parse(data);
+        const isValidUserInput = validateUserInput(userData);
 
-      if (!isValidUserInput) {
-        invalidUserInput(req, res);
+        if (!isValidUserInput) {
+          invalidUserInput(req, res);
 
-        return;
-      }
+          return;
+        }
 
-      const { username, age, hobbies } = userData;
-      const newUser = createNewUser({ username, age, hobbies });
+        const { username, age, hobbies } = userData;
+        const newUser = createNewUser({ username, age, hobbies });
 
-      res.writeHead(201, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(newUser));
-    });
+        res.writeHead(201, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(newUser));
+      }),
+    );
   });
 
 export const updateUser = (req: IncomingMessage, res: ServerResponse, id: string) =>
@@ -83,23 +85,25 @@ export const updateUser = (req: IncomingMessage, res: ServerResponse, id: string
       data += chunk.toString();
     });
 
-    req.on('end', () => {
-      const userData = JSON.parse(data);
-      const isValidUserInput = validateUserInput(userData);
+    req.on('end', () =>
+      handleServerError(req, res, () => {
+        const userData = JSON.parse(data);
+        const isValidUserInput = validateUserInput(userData);
 
-      if (!isValidUserInput) {
-        invalidUserInput(req, res);
+        if (!isValidUserInput) {
+          invalidUserInput(req, res);
 
-        return;
-      }
+          return;
+        }
 
-      const { username, age, hobbies } = userData;
+        const { username, age, hobbies } = userData;
 
-      const updatedUser = updateExistingUser({ username, age, hobbies }, id);
+        const updatedUser = updateExistingUser({ username, age, hobbies }, id);
 
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(updatedUser));
-    });
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(updatedUser));
+      }),
+    );
   });
 
 export const deleteUser = (req: IncomingMessage, res: ServerResponse, id: string) =>
@@ -146,7 +150,9 @@ export const invalidUrlError = (req: IncomingMessage, res: ServerResponse) => {
   res.end(JSON.stringify({ message: URL_NOT_FOUND }));
 };
 
-export const serverError = (req: IncomingMessage, res: ServerResponse) => {
+export const serverError = (req: IncomingMessage, res: ServerResponse, error: any) => {
+  if (error) console.log('Server error:', error);
+
   res.writeHead(500, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify({ message: SERVER_ERROR }));
 };
@@ -155,7 +161,6 @@ export const handleServerError = (req: IncomingMessage, res: ServerResponse, fun
   try {
     func();
   } catch (error) {
-    console.log('Server error:', error);
-    serverError(req, res);
+    serverError(req, res, error);
   }
 };

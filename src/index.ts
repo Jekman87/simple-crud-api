@@ -13,12 +13,12 @@ import { BASE_URL } from './utils/constants';
 
 dotenv.config();
 
-const server = createServer((req: IncomingMessage, res: ServerResponse) => {
+export const server = createServer((req: IncomingMessage, res: ServerResponse) => {
   try {
     const { url = '', method = '' } = req;
     const slugs = url.slice(1).split('/') || [];
 
-    if (!url.startsWith(BASE_URL) || slugs.length > 3) {
+    if (!(BASE_URL === `/${slugs[0]}/${slugs[1]}`) || slugs.length > 3) {
       invalidUrlError(req, res);
 
       return;
@@ -56,8 +56,7 @@ const server = createServer((req: IncomingMessage, res: ServerResponse) => {
         break;
     }
   } catch (error) {
-    console.log('Server error:', error);
-    serverError(req, res);
+    serverError(req, res, error);
   }
 });
 

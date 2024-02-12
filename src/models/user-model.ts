@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { User } from '../types/types';
 
-const users: User[] = [{ id: '6ec0bd7f-11c0-43da-975e-2a8ad9ebae0b', username: 'Sdfsd', age: 33, hobbies: ['sdf'] }];
+const users: User[] = [];
 
 export const getUserIndex = (id: string) => users.findIndex((user) => user.id === id);
 
