@@ -8,7 +8,7 @@ export const getUserIndex = (id: string) => users.findIndex((user) => user.id ==
 export const getAllUsers = () => users;
 
 export const getUserById = (id: string) => {
-  const index = getUserIndex(id)
+  const index = getUserIndex(id);
 
   return users[index];
 };
@@ -27,4 +27,12 @@ export const updateExistingUser = (userData: User, id: string) => {
   users[index] = updatedUser;
 
   return updatedUser;
+};
+
+export const deleteExistingUser = (id: string) => {
+  const index = getUserIndex(id);
+
+  users.splice(index, 1);
+
+  return true;
 };

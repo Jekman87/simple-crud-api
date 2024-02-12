@@ -1,6 +1,14 @@
 import * as dotenv from 'dotenv';
 import { createServer, IncomingMessage, ServerResponse } from 'node:http';
-import { createUser, getUser, getUsers, invalidUrlError, serverError, updateUser } from './controllers/user-controller';
+import {
+  createUser,
+  deleteUser,
+  getUser,
+  getUsers,
+  invalidUrlError,
+  serverError,
+  updateUser,
+} from './controllers/user-controller';
 import { BASE_URL } from './utils/constants';
 
 dotenv.config();
@@ -8,12 +16,7 @@ dotenv.config();
 const server = createServer((req: IncomingMessage, res: ServerResponse) => {
   try {
     const { url = '', method = '' } = req;
-
     const slugs = url.slice(1).split('/') || [];
-
-    console.log('!! req.method', method);
-    console.log('!! req.url', url);
-    console.log('!! slugs', slugs);
 
     if (!url.startsWith(BASE_URL) || slugs.length > 3) {
       invalidUrlError(req, res);
@@ -23,7 +26,7 @@ const server = createServer((req: IncomingMessage, res: ServerResponse) => {
 
     const userId = slugs[2];
 
-    switch (req.method) {
+    switch (method) {
       case 'GET':
         if (userId) {
           getUser(req, res, userId);
@@ -44,7 +47,8 @@ const server = createServer((req: IncomingMessage, res: ServerResponse) => {
         break;
 
       case 'DELETE':
-        console.log('get');
+        deleteUser(req, res, userId);
+
         break;
 
       default:

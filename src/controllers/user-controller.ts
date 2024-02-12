@@ -1,5 +1,5 @@
 import { IncomingMessage, ServerResponse } from 'http';
-import { createNewUser, getAllUsers, getUserById, updateExistingUser } from '../models/user-model';
+import { createNewUser, deleteExistingUser, getAllUsers, getUserById, updateExistingUser } from '../models/user-model';
 import { INVALID_USER_ID, INVALID_USER_INPUT, SERVER_ERROR, URL_NOT_FOUND, USER_NOT_FOUND } from '../utils/constants';
 import { validateId, validateUserInput } from '../utils/helpers';
 
@@ -95,12 +95,35 @@ export const updateUser = (req: IncomingMessage, res: ServerResponse, id: string
 
       const { username, age, hobbies } = userData;
 
-
       const updatedUser = updateExistingUser({ username, age, hobbies }, id);
 
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify(updatedUser));
     });
+  });
+
+export const deleteUser = (req: IncomingMessage, res: ServerResponse, id: string) =>
+  handleServerError(req, res, () => {
+    const isValidId = validateId(id);
+
+    if (!isValidId) {
+      invalidUserIdError(req, res);
+
+      return;
+    }
+
+    const user = getUserById(id);
+
+    if (!user) {
+      userNotFoundError(req, res);
+
+      return;
+    }
+
+    deleteExistingUser(id);
+
+    res.writeHead(204, { 'Content-Type': 'application/json' });
+    res.end();
   });
 
 export const userNotFoundError = (req: IncomingMessage, res: ServerResponse) => {
