@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 import { createServer, IncomingMessage, ServerResponse } from 'node:http';
-import { getUser, getUsers } from './controllers/user-controller';
+import { createUser, getUser, getUsers, invalidUrlError, serverError } from './controllers/user-controller';
 import { BASE_URL } from './utils/constants';
 
 dotenv.config();
@@ -9,7 +9,6 @@ const server = createServer((req: IncomingMessage, res: ServerResponse) => {
   try {
     const { url = '', method = '' } = req;
 
-
     const slugs = url.slice(1).split('/') || [];
 
     console.log('!! req.method', method);
@@ -17,7 +16,9 @@ const server = createServer((req: IncomingMessage, res: ServerResponse) => {
     console.log('!! slugs', slugs);
 
     if (!url.startsWith(BASE_URL) || slugs.length > 3) {
-      // 404
+      invalidUrlError(req, res);
+
+      return;
     }
 
     const userId = slugs[2];
@@ -29,12 +30,11 @@ const server = createServer((req: IncomingMessage, res: ServerResponse) => {
         } else {
           getUsers(req, res);
         }
-        console.log('get');
 
         break;
 
       case 'POST':
-        console.log('get');
+        createUser(req, res);
         break;
 
       case 'PUT':
@@ -46,11 +46,12 @@ const server = createServer((req: IncomingMessage, res: ServerResponse) => {
         break;
 
       default:
+        invalidUrlError(req, res);
         break;
     }
-
   } catch (error) {
-    // 500
+    console.log('Server error:', error);
+    serverError(req, res);
   }
 });
 
