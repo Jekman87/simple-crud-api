@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 import { createServer, IncomingMessage, ServerResponse } from 'node:http';
-import { createUser, getUser, getUsers, invalidUrlError, serverError } from './controllers/user-controller';
+import { createUser, getUser, getUsers, invalidUrlError, serverError, updateUser } from './controllers/user-controller';
 import { BASE_URL } from './utils/constants';
 
 dotenv.config();
@@ -35,10 +35,12 @@ const server = createServer((req: IncomingMessage, res: ServerResponse) => {
 
       case 'POST':
         createUser(req, res);
+
         break;
 
       case 'PUT':
-        console.log('get');
+        updateUser(req, res, userId);
+
         break;
 
       case 'DELETE':
